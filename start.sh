@@ -102,7 +102,10 @@ start_backend() {
     return 0
   fi
   info "Starting backend (uv run scripts/launch.py)..."
-  cd "$PY_DIR" && uv run --with questionary scripts/launch.py
+  (
+    cd "$PY_DIR" && uv run --with questionary scripts/launch.py
+  ) & BACKEND_PID=$!
+  info "Backend PID: $BACKEND_PID"
 }
 
 start_frontend() {
@@ -118,15 +121,28 @@ start_frontend() {
 }
 
 cleanup() {
-  echo
-  info "Stopping services..."
-  if [[ -n "$FRONTEND_PID" ]] && kill -0 "$FRONTEND_PID" 2>/dev/null; then
-    kill "$FRONTEND_PID" 2>/dev/null || true
+  if [[ -n "$FRONTEND_PID" ]] || [[ -n "$BACKEND_PID" ]]; then
+    echo
+    info "Cleaning up running services..."
+    sleep 5
+    if [[ -n "$FRONTEND_PID" ]]; then
+      info "Stopping frontend services with PID: $FRONTEND_PID..."
+      if kill -0 "$FRONTEND_PID" 2>/dev/null; then
+        kill "$FRONTEND_PID" 2>/dev/null || true
+      fi
+      FRONTEND_PID=""
+    fi
+    #
+    if [[ -n "$BACKEND_PID" ]]; then
+      info "Stopping backend services with PID: $BACKEND_PID..."
+      if kill -0 "$BACKEND_PID" 2>/dev/null; then
+        kill "$BACKEND_PID" 2>/dev/null || true
+      fi
+      BACKEND_PID=""
+    fi
+    #
+    success "Cleaned up, all services Stopped"
   fi
-  if [[ -n "$BACKEND_PID" ]] && kill -0 "$BACKEND_PID" 2>/dev/null; then
-    kill "$BACKEND_PID" 2>/dev/null || true
-  fi
-  success "Stopped"
 }
 
 trap cleanup EXIT INT TERM

@@ -52,6 +52,9 @@ class Settings:
         # I18n Configuration
         self.LOCALE_DIR = self.BASE_DIR / "configs/locales"
 
+        # Proxy Configuration
+        self.PROXY_URL = os.getenv("PROXY_URL", None)
+
     def get_database_config(self) -> dict:
         """Get database configuration."""
         return {"url": self.DATABASE_URL}

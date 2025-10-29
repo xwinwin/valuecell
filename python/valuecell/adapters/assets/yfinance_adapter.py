@@ -44,6 +44,11 @@ class YFinanceAdapter(BaseDataAdapter):
     def _initialize(self) -> None:
         """Initialize Yahoo Finance adapter configuration."""
         self.timeout = self.config.get("timeout", 30)
+        self.proxy_url = self.config.get("proxy_url")
+
+        # set yfinance proxy if provided
+        if self.proxy_url and self.proxy_url != "":
+            yf.set_config(proxy=self.proxy_url)
 
         # Asset type mapping for Yahoo Finance
         self.quote_type_to_asset_type_mapping = {

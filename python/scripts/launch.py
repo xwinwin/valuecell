@@ -115,12 +115,10 @@ def main():
             MAP_NAME_COMMAND[selected_agent], shell=True, stdout=logfile, stderr=logfile
         )
         processes.append(process)
-    print("All agents launched. Waiting for tasks...")
 
-    for selected_agent in selected_agents:
-        print(
-            f"You can monitor {selected_agent} logs at {log_dir}/{selected_agent}.log or chat on: {FRONTEND_URL}/agent/{selected_agent}"
-        )
+        print(f"You can monitor {selected_agent} logs at {log_dir}/{selected_agent}.log or chat on: {FRONTEND_URL}/agent/{selected_agent}")
+
+    print("All agents launched. Waiting for tasks...")
 
     # Launch backend
     logfile_path = f"{log_dir}/backend.log"
@@ -133,10 +131,25 @@ def main():
     )
     processes.append(process)
 
-    for process in processes:
-        process.wait()
+    try:
+        for process in processes:
+            process.wait()
+    except KeyboardInterrupt:
+        print("Termination signal received. Shutting down agents...")
+        for process in processes:
+            process.terminate()
+            # Give some time to terminate gracefully
+            try:
+                process.wait(timeout=1)
+                # print process return code
+                print(f"Process {process.pid} terminated with return code {process.returncode}")
+            except subprocess.TimeoutExpired:
+                print(f"Process {process.pid} did not terminate in 5 secs. Killing...")
+                process.kill()
+
     for logfile in logfiles:
         logfile.close()
+
     print(f"All agents finished. Check {log_dir}/ for output.")
 
 

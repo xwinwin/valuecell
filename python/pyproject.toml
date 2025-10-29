@@ -58,6 +58,14 @@ test = [
     "diff-cover>=9.0.0",
 ]
 
+[tool.uv]
+required-environments = [
+    "sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "sys_platform == 'linux'",
+    "sys_platform == 'win32'",
+]
+
 [tool.ruff]
 line-length = 88
 indent-width = 4

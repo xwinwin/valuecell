@@ -42,10 +42,10 @@ def create_app() -> FastAPI:
 
             # Configure Yahoo Finance (free, no API key required)
             try:
-                manager.configure_yfinance()
-                print("✓ Yahoo Finance adapter configured")
+                manager.configure_yfinance(proxy_url=settings.PROXY_URL)
+                print(f"✓ Yahoo Finance adapter with proxy {settings.PROXY_URL} configured")
             except Exception as e:
-                print(f"✗ Yahoo Finance adapter failed: {e}")
+                print(f"✗ Yahoo Finance adapter with proxy {settings.PROXY_URL} failed: {e}")
 
             # Configure AKShare (free, no API key required, optimized)
             try:
